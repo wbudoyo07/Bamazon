@@ -2,11 +2,11 @@
 const mysql = require("mysql");
 const Table = require('cli-table');
 const inquirer = require("inquirer");
+
+//var  to hold the purchase
 let totalCost=0;
-// var totalCost=0;
 
-
-// connect  to the database
+// connect to the database
 const connection = mysql.createConnection({
      
     host:"localhost",
@@ -26,7 +26,7 @@ connection.connect( error => {
 
 
 
-// show the results of the items
+// show the results of the items in the table form
 function displayTable(){
     
     // create an table 
@@ -55,16 +55,17 @@ function displayTable(){
    
 };
 
-// Prompt the user asking
+
 function promptQuestions(){
 
-    //The first should ask them the ID of the product they would like to buy.
+    //The first question should ask user to enter the ID of the product they would like to buy.
+    // should ask the user to ask how many unit they wanna buy
     inquirer
         .prompt([
             {
                 name: "itemID",
                 type: 'input',
-                message: "What kind of item do you like to buy?/n Please enter the Product ID?"
+                message: "What item do you wish to buy (Please enter the ID number) ?"
             },
             {
                 name: "itemQuantity",
@@ -81,24 +82,22 @@ function promptQuestions(){
 
  function purchaseItem(userInput){
     
-    // query the data from mysql
+    // query the data from mysql from products table  where we check the id
     connection.query("SELECT * FROM products where ?", {item_id: userInput.itemID}, function(error, results){
       
         if(error) throw error;
-        // check user input 
+        // check if user asking for more than the stock quantity if 
         if(parseInt(userInput.itemQuantity) > results[0].stock_quantity){
-             console.log(`Insufficient quantity!`);
+             console.log(`Insufficient quantity! We only have ${results[0].stock_quantity} units for ${results[0].product_name}`);
              
             // purchaseItem(userInput);
             promptQuestions();
-        }else{
-            
-            updateQuantity(userInput,results[0].stock_quantity,results[0].price);
-            // console.log(results[0].stock_quantity);
         }
-       
-        //else your id was wrong please try again
-        
+        else
+        {
+
+            updateQuantity(userInput,results[0].stock_quantity,results[0].price);
+        }       
     });
    
     
@@ -106,22 +105,15 @@ function promptQuestions(){
 
  function updateQuantity(userInput,stock,price){
 
+
     let newItemQuantity =stock - parseInt(userInput.itemQuantity)
-     connection.query("UPDATE products SET ? WHERE ?",
-     [
-         {
-             stock_quantity: newItemQuantity
-         },
-         {
-             item_id: userInput.itemID
-         }
-      ], 
-       function(error, results){
+    //query the data from mysql and update them  on products table.
+     connection.query("UPDATE products SET ? WHERE ?",[ { stock_quantity: newItemQuantity },{ item_id: userInput.itemID } ],function(error, results){
 
         if(error) throw error;
-        console.log(`Thanks for buying with us`);
+        // calculate the total price
         totalCost += price * parseInt(userInput.itemQuantity);
-        console.log(totalCost)
+        console.log(`Your total cost is ${totalCost}`);
          
         choicesPrompt();
      });
@@ -132,7 +124,7 @@ function choicesPrompt(){
         .prompt({
             name:"newTransaction",
             type:"list",
-            message:"Do you wish to another stuff ?",
+            message:"Do you wish to buy another stuff ?",
             choices:["YES","NO"]
         })
         .then(function(answer){
@@ -140,12 +132,10 @@ function choicesPrompt(){
                 displayTable();
             }
             else{
-                console.log("Thanks for having service with BAMAZON");
+                
+                console.log(`Thanks you for puchasing with Bamazon. Please wait 3-5 business days`);
+                process.exit();
             }
         });
 }
-// we need to find the item that customer choices
-// get the price of customer of choices
-// assign all the price to variable and add them up
-// print the customer total price
 
