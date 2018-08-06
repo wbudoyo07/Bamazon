@@ -50,15 +50,12 @@ node bamazonManager.js
 ```
 
 **node bamazonCustomer.js**
-
-## Customer View 
 * List a set of menu options: :
   * Purchase product base on product ID
   * Ask the quantities they want to buy.
   * Purchase more stuff.
 
 **node bamazonManager.js**
-## Manager View
 * List a set of menu options:
   * View Products for Sale
   * View Low Inventory
