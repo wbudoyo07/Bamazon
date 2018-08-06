@@ -1,3 +1,3 @@
 # Bamazon
 
-![Alt Text](https://media.giphy.com/media/3ornkbl5jev6mIz4oU/giphy.gif)
+![Alt Text](https://media.giphy.com/media/lptFuLViuVUupG5cw7/giphy.gif)
